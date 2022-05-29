@@ -14,17 +14,11 @@ const Square = ({ takeTurn, id, player }) => {
 
   const [color, setColor] = React.useState(2);
 
-  // function that takes the player as a parameter and then uses it in the calculation to setColor
-  // but does NOT update the player held in the state of the Board component
-  const innerTakeTurn = (id) => {
-    return (player + 1) % 2;
-  };
-
   return (
     <button
       id={id}
       onClick={(e) => {
-        setColor(innerTakeTurn(id));
+        setColor(takeTurn(id));
         e.preventDefault();
         e.target.style.background = palet[color];
       }}
