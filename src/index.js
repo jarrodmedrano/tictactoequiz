@@ -5,56 +5,53 @@ import "./index.css";
 import reportWebVitals from "./reportWebVitals";
 import { createRoot } from "react-dom/client";
 
-const Square = ({ takeTurn, id }) => {
-  const mark = ["O", "X", "+"];
+// notice properties takeTurn and id are being passed in
+const Square = ({ takeTurn, id, player }) => {
+  console.log("Square re-rendering now.");
+  const palet = ["blue", "red", "green"];
   // id is the square's number
-  // filled tells you if square has been filled
-  // tik tells you symbol in square (same as player)
-  // call takeTurn to tell Parent the square is  filled
-  const [filled, setFilled] = React.useState(false);
-  const [tik, setTik] = React.useState(2);
+  // We call takeTurn to tell Parent we have clicked in this square
 
-  // Step 1: Move the mounted state & toggle from the board component to here
-  const [mounted, setMounted] = React.useState(true);
-  const toggle = () => setMounted(!mounted);
+  const [color, setColor] = React.useState(2);
 
-  // Step 2: Check to see if the mounted state is false. If it is we want to return null instead of returning the button
+  // function that takes the player as a parameter and then uses it in the calculation to setColor
+  // but does NOT update the player held in the state of the Board component
+  const innerTakeTurn = (id) => {
+    return (player + 1) % 2;
+  };
 
-  return mounted ? (
-    // Step 3: Trigger toggle() when button is clicked
+  return (
     <button
-      // DO NOT DELETE THIS id
-      id={`square-button-${id}`}
-      onClick={() => {
-        toggle();
-        setTik(takeTurn(id));
-        setFilled(true);
+      id={id}
+      onClick={(e) => {
+        setColor(innerTakeTurn(id));
+        e.preventDefault();
+        e.target.style.background = palet[color];
       }}
-    >
-      <h1>{mark[tik]}</h1>
-    </button>
-  ) : null;
+    ></button>
+  );
 };
 
 const Board = () => {
-  // 1st player is X ie 1
-  // State keeps track of next player and gameState
+  // 1st player is 1
+  // State keeps track of next player
   const [player, setPlayer] = React.useState(1);
-  // const [mounted, setMounted] = React.useState(true);
-  const [gameState, setGameState] = React.useState([]);
+  console.log("Board re-rendering now.");
 
-  // const toggle = () => setMounted(!mounted);
+  // check for winner (see superset.js)
+  let status = `Player ${player}`;
+  console.log(`Status Player ${status}`);
 
+  // Note that Child (Square Component) calls this function
+  // However the function has access to the player held here
   const takeTurn = (id) => {
-    setGameState([...gameState, { id: id, player: player }]);
     setPlayer((player + 1) % 2); // get next player
     return player;
   };
-  function renderSquare(i) {
+  function renderSquare(i, color) {
     // use properties to pass callback function takeTurn to Child
-    return <Square takeTurn={takeTurn} id={i}></Square>;
+    return <Square takeTurn={takeTurn} id={i} player={player}></Square>;
   }
-
   return (
     <div className="game-board">
       <div className="grid-row">
@@ -62,10 +59,10 @@ const Board = () => {
         {renderSquare(1)}
         {renderSquare(2)}
       </div>
-      {/* <div id="info">
-        <button onClick={toggle}>Show/Hide Row</button>
+      <div id="info">
         <h1>{status}</h1>
-      </div> */}
+        <button onClick={() => takeTurn()}> Change Player</button>
+      </div>
     </div>
   );
 };
